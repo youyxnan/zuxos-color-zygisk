@@ -1,0 +1,41 @@
+name: Build Zygisk Module
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26b
+
+      - name: Build with ndk-build
+        run: |
+          cd module
+          ${{ steps.setup-ndk.outputs.ndk-path }}/ndk-build \
+          NDK_PROJECT_PATH=. \
+          APP_BUILD_SCRIPT=./jni/Android.mk \
+          NDK_APPLICATION_MK=./jni/Application.mk
+
+      - name: Prepare Artifacts
+        run: |
+          mkdir -p output/zygisk
+          # 注意：这里的 libzygisk.so 要和你 Android.mk 里写的 LOCAL_MODULE 名字一致
+          cp module/libs/arm64-v8a/libzygisk.so output/zygisk/arm64-v8a.so
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zygisk-so
+          path: output/zygisk/
