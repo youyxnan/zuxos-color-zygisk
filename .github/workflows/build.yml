@@ -33,5 +33,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zygisk-so
-          # 直接上传整个 libs 目录，避免拷贝路径写错导致的报错
-          path: module/libs/
+          path: module/libs/arm64-v8a/
