@@ -11,9 +11,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-
+      
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
