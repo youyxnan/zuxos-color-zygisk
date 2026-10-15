@@ -20,9 +20,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
@@ -41,7 +38,6 @@ jobs:
       - name: Prepare Artifacts
         run: |
           mkdir -p output/zygisk
-          # 自动搜索编译好的 so 文件并复制到输出目录
           find module/build -name "*.so" -path "*/arm64-v8a/*" -exec cp {} output/zygisk/arm64-v8a.so \;
 
       - name: Upload Artifact
