@@ -1,4 +1,5 @@
 name: Build Zygisk Module
+name: Build Zygisk Module
 
 on:
   push:
@@ -14,25 +15,23 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Setup Android NDK
-        uses: nttld/setup-ndk@v1
-        id: setup-ndk
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          ndk-version: r26b
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: Build with ndk-build
-        run: |
-          cd module
-          ${{ steps.setup-ndk.outputs.ndk-path }}/ndk-build \
-          NDK_PROJECT_PATH=. \
-          APP_BUILD_SCRIPT=./jni/Android.mk \
-          NDK_APPLICATION_MK=./jni/Application.mk
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew :module:assembleRelease
 
       - name: Prepare Artifacts
         run: |
           mkdir -p output/zygisk
-          # 注意：这里的 libzygisk.so 要和你 Android.mk 里写的 LOCAL_MODULE 名字一致
-          cp module/libs/arm64-v8a/libzygisk.so output/zygisk/arm64-v8a.so
+          # 自动搜索编译好的 so 文件并重命名
+          find module/build -name "*.so" -path "*/arm64-v8a/*" -exec cp {} output/zygisk/arm64-v8a.so \;
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
